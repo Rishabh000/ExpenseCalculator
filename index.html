@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monthly Expense Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+
+    <!-- Decorative background blobs -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="container">
+
+      <!-- ── Header ───────────────────────────────────────────────────────── -->
+      <header>
+        <div class="header-icon">💰</div>
+        <h1>Expense Tracker</h1>
+        <p class="subtitle">Plan and monitor your monthly spending with ease</p>
+      </header>
+
+      <!-- ── Stats Strip ───────────────────────────────────────────────────── -->
+      <div class="stats-strip">
+        <div class="stat-pill">
+          <span class="stat-label">Expenses</span>
+          <span class="stat-value" id="stat-count">0</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Average</span>
+          <span class="stat-value" id="stat-avg">$0.00</span>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Highest</span>
+          <span class="stat-value" id="stat-high">—</span>
+        </div>
+        <div class="stat-pill budget-pill">
+          <span class="stat-label">Monthly Budget</span>
+          <div class="budget-inline">
+            <div class="input-prefix-wrapper budget-input-wrap">
+              <span class="input-prefix">$</span>
+              <input type="number" id="monthly-budget" placeholder="0.00" min="0" step="0.01" />
+            </div>
+            <button class="btn-budget-save" id="btn-save-budget">Set</button>
+          </div>
+          <span class="budget-notice" id="budget-notice"></span>
+        </div>
+      </div>
+
+      <!-- ── Add Expense ───────────────────────────────────────────────────── -->
+      <section class="card form-card">
+        <div class="card-label">➕ Add New Expense</div>
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label for="expense-category">Category</label>
+            <div class="select-wrapper">
+              <select id="expense-category">
+                <option value="Housing">🏠 Housing / Rent</option>
+                <option value="Groceries">🛒 Groceries</option>
+                <option value="Insurance">🛡️ Insurance</option>
+                <option value="Transport">🚗 Transport</option>
+                <option value="Utilities">💡 Utilities</option>
+                <option value="Health">❤️ Health</option>
+                <option value="Education">📚 Education</option>
+                <option value="Entertainment">🎬 Entertainment</option>
+                <option value="Dining">🍔 Dining Out</option>
+                <option value="Savings">💳 Savings / Investment</option>
+                <option value="Other">📦 Other</option>
+              </select>
+              <span class="select-arrow">▾</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="expense-name">Label <span class="optional">optional</span></label>
+            <input type="text" id="expense-name" placeholder="e.g. Netflix, Gym…" />
+          </div>
+
+          <div class="form-group amount-group">
+            <label for="expense-amount">Amount</label>
+            <div class="input-prefix-wrapper">
+              <span class="input-prefix">$</span>
+              <input type="number" id="expense-amount" placeholder="0.00" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <button class="btn-add" onclick="addExpense()">
+            <span class="btn-add-icon">+</span> Add Expense
+          </button>
+
+        </div>
+        <p class="error-msg" id="error-msg"></p>
+      </section>
+
+      <!-- ── Expense List ──────────────────────────────────────────────────── -->
+      <section class="card list-card">
+        <div class="list-header">
+          <div class="card-label">📋 Expense List</div>
+          <div class="list-actions">
+            <button class="btn-export" id="btn-export" title="Export as CSV">⬇ CSV</button>
+            <button class="btn-clear"  onclick="clearAll()">🗑 Clear All</button>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar">
+          <div class="filter-search-wrap">
+            <span class="filter-icon">🔍</span>
+            <input type="text" id="filter-search" placeholder="Search by label…" />
+          </div>
+          <div class="select-wrapper filter-select-wrap">
+            <select id="filter-category">
+              <option value="">All Categories</option>
+              <option value="Housing">🏠 Housing</option>
+              <option value="Groceries">🛒 Groceries</option>
+              <option value="Insurance">🛡️ Insurance</option>
+              <option value="Transport">🚗 Transport</option>
+              <option value="Utilities">💡 Utilities</option>
+              <option value="Health">❤️ Health</option>
+              <option value="Education">📚 Education</option>
+              <option value="Entertainment">🎬 Entertainment</option>
+              <option value="Dining">🍔 Dining</option>
+              <option value="Savings">💳 Savings</option>
+              <option value="Other">📦 Other</option>
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table id="expense-table">
+            <thead>
+              <tr>
+                <th data-sort="category" onclick="sortBy('category')">Category <span class="sort-icon"></span></th>
+                <th>Label</th>
+                <th data-sort="amount" onclick="sortBy('amount')">Amount <span class="sort-icon"></span></th>
+                <th data-sort="date" onclick="sortBy('date')">Date <span class="sort-icon"></span></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="expense-body">
+              <tr id="empty-row">
+                <td colspan="5" class="empty-state">
+                  <div class="empty-icon">🧾</div>
+                  <div>No expenses yet</div>
+                  <div class="empty-hint">Add your first expense above to get started</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ── Summary ──────────────────────────────────────────────────────── -->
+      <section class="card summary-card">
+        <div class="card-label">📊 Monthly Summary</div>
+
+        <!-- Budget banner injected here by JS if a budget is set -->
+
+        <div class="summary-grid" id="category-summary">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="total-row">
+          <div class="total-label">
+            <span class="total-icon">💳</span>
+            Total Monthly Expenses
+          </div>
+          <span id="grand-total">$0.00</span>
+        </div>
+      </section>
+
+      <footer>
+        Built with ❤️ &nbsp;|&nbsp; Data saved locally in your browser
+      </footer>
+
+    </div><!-- /.container -->
+
+    <!-- ── Undo Toast ────────────────────────────────────────────────────── -->
+    <div class="undo-toast" id="undo-toast">
+      <span>Expense removed</span>
+      <button id="btn-undo" onclick="undoDelete()">Undo</button>
+    </div>
+
+    <script src="backend.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
